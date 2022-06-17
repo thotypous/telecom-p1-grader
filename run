@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 PYTHONPATH=grader grader/autograde.py
-curl -L \
+curl -sL \
     -H "Content-Type: application/json" \
     -d "{\"repo\": \"$GITHUB_REPOSITORY\"}" \
     'https://script.google.com/macros/s/AKfycby-YMl375Uxs6B2sxgcwdkejiaDNaNhisicdfQJGcZrDbBTmzyLridG2HGxw0IFz8qw/exec'
