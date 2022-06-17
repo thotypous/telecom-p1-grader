@@ -1,5 +1,5 @@
 #!/bin/bash -xe
-PYTHONPATH=grader exec grader/autograde.py
+PYTHONPATH=grader grader/autograde.py
 curl -L \
     -H "Content-Type: application/json"
     -d "{\"repo\": \"$GITHUB_REPOSITORY\"}"
