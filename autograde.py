@@ -3,7 +3,7 @@ import json
 
 
 def main():
-    scores = {"test": 3}
+    scores = {}
     print(json.dumps({'scores':scores}))
 
 
