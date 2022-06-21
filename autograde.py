@@ -63,16 +63,16 @@ def test_fsk_tx_tones(modem, fs, bufsz, omega0, omega1, verificar_silencio):
             
             samples = modem.get_samples()
 
+        if desvios != 0:
+            print(f'modem desviou {desvios} vezes de uma senóide pura', file=sys.stderr)
+            return False
+
         if verificar_silencio:
             for sample in samples:
                 if abs(np.sin(phi) - sample) > 1e-8:
                     print('modem não produziu tom de marca (bit 1) quando não tinha bits disponíveis para serem modulados', file=sys.stderr)
                     return False
                 phi += omega1/fs
-
-        if desvios != 0:
-            print(f'modem desviou {desvios} vezes de uma senóide pura', file=sys.stderr)
-            return False
 
     return True
 
