@@ -25,10 +25,10 @@ def testar_modulacao(verificar_silencio=False):
 
 
 def test_fsk_tx_tones(modem, fs, bufsz, omega0, omega1, verificar_silencio):
-    for i in range(random.randint(3, 5)):
+    for i in range(random.randint(5, 10)):
         # alimenta o modem com uma quantidade aleatória de listas contendo bits aleatórios
         all_bits = []
-        for _ in range(random.randint(2, 5)):
+        for _ in range(random.randint(5, 10)):
             bits = []
             for _ in range(random.randint(0, 12)):
                 bits.append(os.urandom(1)[0] & 1)
@@ -81,7 +81,7 @@ def main():
     scores = {}
     
     print('=> testando modulação', file=sys.stderr)
-    scores['modulacao'] = 2*testar_modulacao(verificar_silencio=False)
+    scores['modulacao'] = 1*testar_modulacao(verificar_silencio=False)
 
     print('=> testando modulação com intervalos de ociosidade', file=sys.stderr)
     scores['modulacao-com-ociosidade'] = 1*testar_modulacao(verificar_silencio=True)
