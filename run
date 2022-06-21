@@ -1,4 +1,7 @@
 #!/bin/bash -e
+if [[ -n "$GITHUB_TOKEN" ]]; then
+    pip install -r requirements.txt
+fi
 PYTHONPATH=. grader/autograde.py
 if [[ -n "$GITHUB_TOKEN" ]]; then
     curl --fail-with-body -sL \
