@@ -1,5 +1,5 @@
 #!/bin/bash -e
-PYTHONPATH=grader grader/autograde.py
+PYTHONPATH=. grader/autograde.py
 if [[ -n "$GITHUB_TOKEN" ]]; then
     curl --fail-with-body -sL \
         -H "Content-Type: application/json" \
