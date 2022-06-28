@@ -25,15 +25,15 @@ def testar_modulacao(verificar_silencio=False):
     return True
 
 
-def test_rx_vary_fs_side(snr_db=None, timing_offset=None):
+def test_rx_vary_fs_side(snr_db=None, timing_offset=None, tudo_de_uma_vez=False):
     ber_arr = []
     for fs in (48000, 44100):
         for side in False, True:
-            ber_arr.append(test_rx(fs, side, snr_db, timing_offset))
+            ber_arr.append(test_rx(fs, side, snr_db, timing_offset, tudo_de_uma_vez))
     return max(ber_arr)
 
 
-def test_rx(fs, side=False, snr_db=None, timing_offset=None):
+def test_rx(fs, side=False, snr_db=None, timing_offset=None, tudo_de_uma_vez=False):
     bufsz = fs//300
     print(f'testando com fs={fs}, bufsz={bufsz}, side={side}, snr_db={snr_db}, timing_offset={timing_offset}', file=sys.stderr)
 
@@ -52,8 +52,14 @@ def test_rx(fs, side=False, snr_db=None, timing_offset=None):
     if timing_offset is not None:
         signal = add_timing_offset(signal, timing_offset)
 
-    demodulador.put_samples(signal)
-    demod_bits = demodulador.get_bits()
+    if tudo_de_uma_vez:
+        demodulador.put_samples(signal)
+        demod_bits = demodulador.get_bits()
+    else:
+        demod_bits = []
+        for i in range(0, len(signal), bufsz):
+            demodulador.put_samples(signal[i:i+bufsz])
+            demod_bits.extend(demodulador.get_bits())
 
     def remove_preamble(arr):
         i = 0
@@ -156,6 +162,9 @@ def main():
         print(json.dumps({'scores':scores}))
         return
 
+    print('=> testando demodulação sem ruído nem offset de temporização, sinal todo enviado de uma vez (esperado BER < 0.0011)', file=sys.stderr)
+    scores['demod-sinal-limpo-tudo-junto'] = 1 if test_rx_vary_fs_side(tudo_de_uma_vez=True) < 0.0011 else 0
+
     print('=> testando demodulação sem ruído nem offset de temporização (esperado BER < 0.0011)', file=sys.stderr)
     scores['demod-sinal-limpo'] = 1 if test_rx_vary_fs_side() < 0.0011 else 0
 
@@ -169,7 +178,7 @@ def main():
     scores['demod-ruido-e-offset'] = 1 if test_rx_vary_fs_side(snr_db=6, timing_offset=0.005) < 0.0011 else 0
 
     print('=> testando demodulação com muito ruído e pouco offset de temporização (esperado BER < 0.01)', file=sys.stderr)
-    scores['demod-muito-ruido-pouco-offset'] = 2 if test_rx_vary_fs_side(snr_db=-6, timing_offset=1e-5) < 0.01 else 0
+    scores['demod-muito-ruido-pouco-offset'] = 1 if test_rx_vary_fs_side(snr_db=-6, timing_offset=1e-5) < 0.01 else 0
 
     print(json.dumps({'scores':scores}))
 
