@@ -63,7 +63,7 @@ def test_rx(fs, side=False, snr_db=None, timing_offset=None, tudo_de_uma_vez=Fal
 
     def remove_preamble(arr):
         i = 0
-        while i < len(arr) and arr[i] == 1
+        while i < len(arr) and arr[i] == 1:
             i += 1
         return arr[i+1:]
 
