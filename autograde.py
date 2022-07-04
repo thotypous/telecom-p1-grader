@@ -112,7 +112,7 @@ def test_fsk_tx_tones(modem, fs, bufsz, omega0, omega1, verificar_silencio):
                 print('modem não respeitou o bufsz requisitado', file=sys.stderr)
                 return False
             for sample in samples:
-                if abs(np.sin(phi) - sample) > 5e-8:
+                if abs(np.sin(phi) - sample) > 6e-8:
                     desvios += 1
                 phi += (omega1 if bit else omega0)/fs
 
@@ -124,7 +124,7 @@ def test_fsk_tx_tones(modem, fs, bufsz, omega0, omega1, verificar_silencio):
 
         if verificar_silencio:
             for sample in samples:
-                if abs(np.sin(phi) - sample) > 1e-8:
+                if abs(np.sin(phi) - sample) > 6e-8:
                     print('modem não produziu tom de marca (bit 1) quando não tinha bits disponíveis para serem modulados', file=sys.stderr)
                     return False
                 phi += omega1/fs
