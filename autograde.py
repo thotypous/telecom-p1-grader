@@ -177,8 +177,8 @@ def main():
     print('=> testando demodulação com um pouco de ruído e com offset de temporização (esperado BER < 0.0011)', file=sys.stderr)
     scores['demod-ruido-e-offset'] = 1 if test_rx_vary_fs_side(snr_db=6, timing_offset=0.005) < 0.0011 else 0
 
-    print('=> testando demodulação com muito ruído e pouco offset de temporização (esperado BER < 0.01)', file=sys.stderr)
-    scores['demod-muito-ruido-pouco-offset'] = 1 if test_rx_vary_fs_side(snr_db=-6, timing_offset=1e-5) < 0.01 else 0
+    print('=> testando demodulação com muito ruído e com offset de temporização (esperado BER < 0.01)', file=sys.stderr)
+    scores['demod-muito-ruido-pouco-offset'] = 1 if test_rx_vary_fs_side(snr_db=-6, timing_offset=0.005) < 0.01 else 0
 
     print(json.dumps({'scores':scores}))
 
