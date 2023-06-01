@@ -8,7 +8,7 @@ MARK_AS_ADVANCED(
 )
 
 MACRO(package_add_test TESTNAME)
-    ADD_EXECUTABLE(${TESTNAME} ${TESTNAME}.cpp)
+    ADD_EXECUTABLE(${TESTNAME} ${TESTNAME}.cpp channel.cpp)
     ADD_TEST(NAME ${TESTNAME} COMMAND ${TESTNAME})
     TARGET_INCLUDE_DIRECTORIES(${TESTNAME} PUBLIC ..)
     TARGET_LINK_LIBRARIES(${TESTNAME} gtest gmock gtest_main PkgConfig::RtAudio Threads::Threads)
