@@ -12,7 +12,8 @@ TEST(test, lol) {
     for (int i = 0; i < 48000; i++) {
         samples[i] = sin(2.*std::numbers::pi*1180.*i/48000.);
     }
-    channel_model_EbN0_dB(24, 0.99, samples, 48000);
+    std::mt19937 gen {42};
+    channel_model_EbN0_dB(gen, 24, 0.99, samples, 48000);
     cout << scientific << setprecision(8) << showpos;
     for (int i = 0; i < 48000; i++) {
         cout << ((float)i)/48000. << "\t" << samples[i] << endl;

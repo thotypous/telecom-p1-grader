@@ -1,13 +1,9 @@
-#include <random>
 #include <math.h>
 #include "mlinterp.hpp"
 #include "channel.hpp"
 #include "config.hpp"
 
-
-void channel_model(float noise_amplitude, float timing_offset, float *samples, int n) {
-    std::random_device rd {};
-    std::mt19937 gen {rd()};
+void channel_model(std::mt19937 &gen, float noise_amplitude, float timing_offset, float *samples, int n) {
     std::normal_distribution<> d {0, noise_amplitude};
 
     float *noisy = new float[n];
@@ -44,7 +40,7 @@ float signal_avg_power(float *samples, int n) {
     return res;
 }
 
-void channel_model_EbN0_dB(float EbN0_dB, float timing_offset, float *samples, int n) {
+void channel_model_EbN0_dB(std::mt19937 &gen, float EbN0_dB, float timing_offset, float *samples, int n) {
     // see https://www.mathworks.com/help/comm/ug/awgn-channel.html
     // in our case, Eb == Es, since we have one bit per symbol
     const float SNR_dB = EbN0_dB - 10.*log10((float)SAMPLES_PER_SYMBOL);
@@ -53,5 +49,5 @@ void channel_model_EbN0_dB(float EbN0_dB, float timing_offset, float *samples, i
     const float N_dB = S_dB - SNR_dB;
     const float N = pow(10., N_dB/10.);
 
-    channel_model(sqrt(N), timing_offset, samples, n);
+    channel_model(gen, sqrt(N), timing_offset, samples, n);
 }
