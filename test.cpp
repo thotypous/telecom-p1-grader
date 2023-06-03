@@ -10,16 +10,21 @@
 using namespace std;
 
 TEST(test, lol) {
-    const int n = 8*SAMPLING_RATE;
-    std::unique_ptr<float[]> samples (new float[n]);
-    for (int i = 0; i < n; i++) {
-        samples[i] = 44.721359549995796*sin(2.*std::numbers::pi*1180.*i/48000.);
+    UART_TX uart_tx;
+    const char msg[] = "Hello";
+    for (int i = 0; i < sizeof(msg); i++) {
+        uart_tx.put_byte(msg[i]);
     }
+
+    int n = SAMPLES_PER_SYMBOL * 10 * sizeof(msg);
+    unsigned int digital_samples[n];
+    uart_tx.get_samples(digital_samples, n);
+
     std::mt19937 gen {42};
     int ni;
-    std::unique_ptr<float[]> out_samples = channel_model_EbN0_dB(gen, 2.228787452803376, 1.02, samples.get(), n, ni);
-    cout << scientific << setprecision(8) << showpos;
+    std::unique_ptr<unsigned int[]> out_samples = bs_transition_channel(gen, .5, SAMPLES_PER_SYMBOL/2, 1.02, digital_samples, n, ni);
+
     for (int i = 0; i < ni; i++) {
-        cout << ((float)i)/48000. << "\t" << out_samples[i] << endl;
+        cout << out_samples[i] << endl;
     }
 }
