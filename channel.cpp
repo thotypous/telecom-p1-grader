@@ -11,7 +11,7 @@ std::unique_ptr<float[]> channel_model(std::mt19937 &gen, float noise_amplitude,
         yd[i] = samples[i] + d(gen);
     }
 
-    ni = (int)ceil((nxd-1)/timing_offset) + 1;
+    ni = (int)((nxd-1)/timing_offset) + 1;
     
     std::unique_ptr<float[]> xd (new float[nxd]);
     std::unique_ptr<float[]> xi (new float[ni]);

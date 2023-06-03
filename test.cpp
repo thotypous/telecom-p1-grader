@@ -17,7 +17,7 @@ TEST(test, lol) {
     }
     std::mt19937 gen {42};
     int ni;
-    std::unique_ptr<float[]> out_samples = channel_model_EbN0_dB(gen, 2.228787452803376, 1.00, samples.get(), n, ni);
+    std::unique_ptr<float[]> out_samples = channel_model_EbN0_dB(gen, 2.228787452803376, 1.02, samples.get(), n, ni);
     cout << scientific << setprecision(8) << showpos;
     for (int i = 0; i < ni; i++) {
         cout << ((float)i)/48000. << "\t" << out_samples[i] << endl;
