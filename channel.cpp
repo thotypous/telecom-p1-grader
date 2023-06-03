@@ -3,36 +3,39 @@
 #include "channel.hpp"
 #include "config.hpp"
 
-void channel_model(std::mt19937 &gen, float noise_amplitude, float timing_offset, float *samples, int n) {
+std::unique_ptr<float[]> channel_model(std::mt19937 &gen, float noise_amplitude, float timing_offset, const float *samples, int nxd, int &ni) {
     std::normal_distribution<> d {0, noise_amplitude};
 
-    float *noisy = new float[n];
-    for (int i = 0; i < n; i++) {
-        noisy[i] = samples[i] + d(gen);
+    std::unique_ptr<float[]> yd (new float[nxd]);
+    for (int i = 0; i < nxd; i++) {
+        yd[i] = samples[i] + d(gen);
     }
+
+    ni = (int)ceil((nxd-1)/timing_offset) + 1;
     
-    float *xd = new float[n];
-    float *xi = new float[n];
+    std::unique_ptr<float[]> xd (new float[nxd]);
+    std::unique_ptr<float[]> xi (new float[ni]);
 
-    for (int i = 0; i < n; i++) {
-        xd[i] = ((float)i)/n;
-        xi[i] = timing_offset * xd[i];
+    for (int i = 0; i < nxd; i++) {
+        xd[i] = ((float)i)/(nxd-1);
+    }
+    for (int i = 0; i < ni; i++) {
+        xi[i] = timing_offset * ((float)i)/(nxd-1);
     }
 
-    const int nd[] = { n };
+    const int nd[] = { nxd };
+    std::unique_ptr<float[]> yi (new float[ni]);
 
     mlinterp::interp(
-            nd, n,
-            noisy, samples,
-            xd, xi
+            nd, ni,
+            yd.get(), yi.get(),
+            xd.get(), xi.get()
             );
 
-    delete [] noisy;
-    delete [] xd;
-    delete [] xi;
+    return yi;
 }
 
-float signal_avg_power(float *samples, int n) {
+float signal_avg_power(const float *samples, int n) {
     float res = 0.;
     for (int i = 0; i < n; i++) {
         res += (samples[i]*samples[i])/n;
@@ -40,14 +43,14 @@ float signal_avg_power(float *samples, int n) {
     return res;
 }
 
-void channel_model_EbN0_dB(std::mt19937 &gen, float EbN0_dB, float timing_offset, float *samples, int n) {
+std::unique_ptr<float[]> channel_model_EbN0_dB(std::mt19937 &gen, float EbN0_dB, float timing_offset, const float *samples, int nxd, int &ni) {
     // see https://www.mathworks.com/help/comm/ug/awgn-channel.html
     // in our case, Eb == Es, since we have one bit per symbol
-    const float SNR_dB = EbN0_dB - 10.*log10((float)SAMPLES_PER_SYMBOL);
+    const float SNR_dB = EbN0_dB - 10.*log10(0.5*(float)SAMPLES_PER_SYMBOL);
 
-    const float S_dB = 10. * log10(signal_avg_power(samples, n));
+    const float S_dB = 10. * log10(signal_avg_power(samples, nxd));
     const float N_dB = S_dB - SNR_dB;
     const float N = pow(10., N_dB/10.);
 
-    channel_model(gen, sqrt(N), timing_offset, samples, n);
+    return channel_model(gen, sqrt(N), timing_offset, samples, nxd, ni);
 }
