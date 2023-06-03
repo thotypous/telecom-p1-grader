@@ -46,7 +46,7 @@ float signal_avg_power(const float *samples, int n) {
 std::unique_ptr<float[]> channel_model_EbN0_dB(std::mt19937 &gen, float EbN0_dB, float timing_offset, const float *samples, int nxd, int &ni) {
     // see https://www.mathworks.com/help/comm/ug/awgn-channel.html
     // in our case, Eb == Es, since we have one bit per symbol
-    const float SNR_dB = EbN0_dB - 10.*log10(0.5*(float)SAMPLES_PER_SYMBOL);
+    const float SNR_dB = EbN0_dB - 10.*log10(0.5*SAMPLES_PER_SYMBOL);
 
     const float S_dB = 10. * log10(signal_avg_power(samples, nxd));
     const float N_dB = S_dB - SNR_dB;
