@@ -67,10 +67,6 @@ std::unique_ptr<float[]> awgn_channel_EbN0_dB(std::mt19937 &gen, float EbN0_dB, 
 
 std::unique_ptr<unsigned int[]> bs_transition_channel(std::mt19937 &gen, float flip_probability, int samples_affected_on_transition, float timing_offset, const unsigned int *samples, int nxd, int &ni)
 {
-    if (nxd < 1) {
-        throw new std::invalid_argument("nxd should be at least 1");
-    }
-
     std::unique_ptr<float[]> yd (new float[nxd]);
 
     std::uniform_real_distribution<> d {0., 1.};

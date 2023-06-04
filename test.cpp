@@ -3,28 +3,81 @@
 #include <gtest/gtest.h>
 #include <memory>
 #include <numbers>
+#include <random>
 #include "config.hpp"
 #include "uart.hpp"
 #include "channel.hpp"
 
 using namespace std;
 
-TEST(test, lol) {
-    UART_TX uart_tx;
-    const char msg[] = "Hello";
-    for (int i = 0; i < sizeof(msg); i++) {
-        uart_tx.put_byte(msg[i]);
-    }
+static void test_uart(bool add_noise, bool add_timing_offset)
+{
+    std::deque<uint8_t> received_bytes;
 
-    int n = SAMPLES_PER_SYMBOL * 10 * sizeof(msg);
-    unsigned int digital_samples[n];
-    uart_tx.get_samples(digital_samples, n);
+    UART_TX uart_tx;
+    UART_RX uart_rx([&received_bytes](uint8_t b){ received_bytes.push_back(b); });
 
     std::mt19937 gen {42};
-    int ni;
-    std::unique_ptr<unsigned int[]> out_samples = bs_transition_channel(gen, .5, SAMPLES_PER_SYMBOL/2, 1.02, digital_samples, n, ni);
+    std::uniform_int_distribution<> d_idle_samples {0, 2*SAMPLES_PER_SYMBOL};
+    std::uniform_int_distribution<> d_msg_bytes {1, 100};
+    std::uniform_int_distribution<> d_byte {0, 255};
+    std::uniform_real_distribution<> d_timing_offset {0.98f, 1.02f};
 
-    for (int i = 0; i < ni; i++) {
-        cout << out_samples[i] << endl;
+    for (int iteration = 0; iteration < 100; iteration++) {
+        const int idle_samples = d_idle_samples(gen);
+        const int msg_bytes = d_msg_bytes(gen);
+        const int msg_samples = 10 * SAMPLES_PER_SYMBOL * msg_bytes;
+        const int n = idle_samples + msg_samples;
+
+        unsigned int transmitted_samples[n];
+        uart_tx.get_samples(transmitted_samples, idle_samples);
+
+        uint8_t orig_msg[msg_bytes];
+        for (int i = 0; i < n; i++) {
+            orig_msg[i] = d_byte(gen);
+            uart_tx.put_byte(orig_msg[i]);
+        }
+        uart_tx.get_samples(&transmitted_samples[idle_samples], msg_samples);
+
+        int ni;
+        auto received_samples = bs_transition_channel(gen, 
+                add_noise ? .5 : 0.,
+                SAMPLES_PER_SYMBOL/2, 
+                add_timing_offset ? d_timing_offset(gen) : 1.,
+                transmitted_samples,
+                n, ni);
+
+        std::uniform_int_distribution<> d_cut {1, ni-1};
+        int cut = d_cut(gen);
+        uart_rx.put_samples(received_samples.get(), cut);
+        uart_rx.put_samples(&received_samples.get()[cut], n-cut);
+
+        ASSERT_EQ(received_bytes.size(), msg_bytes);
+
+        for (int i = 0; i < n; i++) {
+            uint8_t byte = received_bytes.front();
+            received_bytes.pop_front();
+            ASSERT_EQ(orig_msg[i], byte);
+        }
     }
+}
+
+TEST(uart, trivial)
+{
+    test_uart(false, false);
+}
+
+TEST(uart, sync)
+{
+    test_uart(false, true);
+}
+
+TEST(uart, noisy)
+{
+    test_uart(true, false);
+}
+
+TEST(uart, noisy_sync)
+{
+    test_uart(true, true);
 }
