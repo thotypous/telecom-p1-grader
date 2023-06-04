@@ -52,12 +52,12 @@ static void test_uart(bool add_noise, bool add_timing_offset)
         uart_rx.put_samples(received_samples.get(), cut);
         uart_rx.put_samples(&received_samples.get()[cut], n-cut);
 
-        ASSERT_EQ(received_bytes.size(), msg_bytes);
+        ASSERT_EQ(received_bytes.size(), msg_bytes) << "on iteration=" << iteration;
 
         for (int i = 0; i < n; i++) {
             uint8_t byte = received_bytes.front();
             received_bytes.pop_front();
-            ASSERT_EQ(orig_msg[i], byte);
+            ASSERT_EQ(orig_msg[i], byte) << "on iteration=" << iteration << ", i=" << i;
         }
     }
 }
