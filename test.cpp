@@ -42,7 +42,7 @@ static void test_uart(bool add_noise, bool add_timing_offset)
         int ni;
         auto received_samples = bs_transition_channel(gen, 
                 add_noise ? .5 : 0.,
-                SAMPLES_PER_SYMBOL/2, 
+                add_timing_offset ? SAMPLES_PER_SYMBOL/2 : 0, 
                 add_timing_offset ? d_timing_offset(gen) : 1.,
                 transmitted_samples,
                 n, ni);

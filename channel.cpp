@@ -77,7 +77,7 @@ std::unique_ptr<unsigned int[]> bs_transition_channel(std::mt19937 &gen, float f
         if (samples[i] != previous_sample) {
             // transition, apply BSC model
             const int s = std::max(0, i - samples_affected_on_transition/2);
-            const int e = std::min(i + samples_affected_on_transition/2, nxd);
+            const int e = std::min(i + 1 + samples_affected_on_transition/2, nxd);
             for (int j = s; j < e; j++) {
                 if (d(gen) < flip_probability) {
                     yd[j] = !samples[j];
