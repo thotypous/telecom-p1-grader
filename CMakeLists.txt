@@ -19,4 +19,4 @@ MACRO(package_add_test TESTNAME)
     SET_TARGET_PROPERTIES(${TESTNAME} PROPERTIES FOLDER tests)
 ENDMACRO()
 
-PACKAGE_ADD_TEST(test test.cpp channel.cpp ../uart.cpp)
+PACKAGE_ADD_TEST(test test.cpp channel.cpp ../uart.cpp ../v21.cpp)
