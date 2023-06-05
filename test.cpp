@@ -102,7 +102,7 @@ static float compute_v21_ber_on_direction(bool tx_call, float EbN0_dB, bool add_
     V21_TX v21_tx(tx_omega1, tx_omega0);
 
     std::mt19937 gen {42};
-    std::uniform_int_distribution<> d_idle_samples {0, 2*SAMPLES_PER_SYMBOL};
+    std::uniform_int_distribution<> d_idle_samples {2*SAMPLES_PER_SYMBOL, 4*SAMPLES_PER_SYMBOL};
     std::uniform_int_distribution<> d_msg_bytes {1, 100};
     std::uniform_int_distribution<> d_byte {0, 255};
     std::uniform_real_distribution<> d_timing_offset {0.98f, 1.02f};
@@ -112,9 +112,10 @@ static float compute_v21_ber_on_direction(bool tx_call, float EbN0_dB, bool add_
 
     for (int iteration = 0; iteration < num_iterations; iteration++) {
         const int idle_samples = d_idle_samples(gen);
+        constexpr int idle_end = 2*SAMPLES_PER_SYMBOL;
         const int msg_bytes = d_msg_bytes(gen);
         const int msg_samples = 10 * SAMPLES_PER_SYMBOL * msg_bytes;
-        const int n = idle_samples + msg_samples;
+        const int n = idle_samples + msg_samples + idle_end;
 
         unsigned int digital_buffer[n];
         float transmitted_samples[n];
@@ -126,6 +127,7 @@ static float compute_v21_ber_on_direction(bool tx_call, float EbN0_dB, bool add_
             uart_tx.put_byte(orig_msg[i]);
         }
         uart_tx.get_samples(&digital_buffer[idle_samples], msg_samples);
+        uart_tx.get_samples(&digital_buffer[idle_samples+msg_samples], idle_end);
         v21_tx.modulate(digital_buffer, transmitted_samples, n);
 
         int ni;
