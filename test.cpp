@@ -26,7 +26,7 @@ static void test_uart(bool add_noise, bool add_timing_offset)
     for (int iteration = 0; iteration < 100; iteration++) {
         const int idle_samples = d_idle_samples(gen);
         const int msg_bytes = d_msg_bytes(gen);
-        const int msg_samples = 10 * SAMPLES_PER_SYMBOL * msg_bytes;
+        const int msg_samples = 10 * SAMPLES_PER_SYMBOL * (msg_bytes + 1);
         const int n = idle_samples + msg_samples;
 
         unsigned int transmitted_samples[n];
@@ -50,14 +50,13 @@ static void test_uart(bool add_noise, bool add_timing_offset)
         std::uniform_int_distribution<> d_cut {1, ni-1};
         int cut = d_cut(gen);
         uart_rx.put_samples(received_samples.get(), cut);
-        uart_rx.put_samples(&received_samples.get()[cut], n-cut);
+        uart_rx.put_samples(&received_samples.get()[cut], ni-cut);
 
-        ASSERT_EQ(received_bytes.size(), msg_bytes) << "on iteration=" << iteration;
+        ASSERT_EQ(received_bytes.size(), msg_bytes) << "on iteration " << iteration;
 
-        for (int i = 0; i < n; i++) {
-            uint8_t byte = received_bytes.front();
+        for (int i = 0; i < msg_bytes; i++) {
+            ASSERT_EQ(orig_msg[i], received_bytes.front()) << "on iteration " << iteration << ", i=" << i;
             received_bytes.pop_front();
-            ASSERT_EQ(orig_msg[i], byte) << "on iteration=" << iteration << ", i=" << i;
         }
     }
 }
