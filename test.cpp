@@ -26,14 +26,14 @@ static void test_uart(bool add_noise, bool add_timing_offset)
     for (int iteration = 0; iteration < 100; iteration++) {
         const int idle_samples = d_idle_samples(gen);
         const int msg_bytes = d_msg_bytes(gen);
-        const int msg_samples = 10 * SAMPLES_PER_SYMBOL * (msg_bytes + 1);
+        const int msg_samples = 10 * SAMPLES_PER_SYMBOL * msg_bytes;
         const int n = idle_samples + msg_samples;
 
         unsigned int transmitted_samples[n];
         uart_tx.get_samples(transmitted_samples, idle_samples);
 
         uint8_t orig_msg[msg_bytes];
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < msg_bytes; i++) {
             orig_msg[i] = d_byte(gen);
             uart_tx.put_byte(orig_msg[i]);
         }
