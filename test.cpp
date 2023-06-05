@@ -42,7 +42,7 @@ static void test_uart(bool add_noise, bool add_timing_offset)
         int ni;
         auto received_samples = bs_transition_channel(gen, 
                 add_noise ? .5 : 0.,
-                add_timing_offset ? SAMPLES_PER_SYMBOL/2 : 0, 
+                add_noise ? SAMPLES_PER_SYMBOL/4 : 0,
                 add_timing_offset ? d_timing_offset(gen) : 1.,
                 transmitted_samples,
                 n, ni);
@@ -66,7 +66,7 @@ TEST(uart, trivial)
     test_uart(false, false);
 }
 
-TEST(uart, sync)
+TEST(uart, unsync)
 {
     test_uart(false, true);
 }
@@ -76,7 +76,7 @@ TEST(uart, noisy)
     test_uart(true, false);
 }
 
-TEST(uart, noisy_sync)
+TEST(uart, noisy_unsync)
 {
     test_uart(true, true);
 }
