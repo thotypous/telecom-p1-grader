@@ -1,10 +1,13 @@
 #!/bin/bash
+mkdir -p artifacts
+
 if [[ -n "$GITHUB_TOKEN" || -n "$BUILD_MINGW" ]]; then
     set -xe
     mkdir build-win
     cd build-win
     PKG_CONFIG_LIBDIR=/mingw-install/lib/pkgconfig cmake -DCMAKE_TOOLCHAIN_FILE=/mingw-install/TC-mingw.cmake ..
     make
+    cp Modem.exe ../artifacts
     cd ..
 fi
 
@@ -13,3 +16,5 @@ mkdir build
 cd build
 cmake -DGRADER=ON ..
 make
+cp Modem ../artifacts
+python grade.py
