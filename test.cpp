@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <iostream>
 #include <math.h>
 #include <gtest/gtest.h>
@@ -96,11 +97,6 @@ static float compute_v21_ber_on_direction(bool tx_call, float EbN0_dB, bool add_
         tx_omega1 = 2*std::numbers::pi*(1750 - 100);
     }
 
-    UART_TX uart_tx;
-    UART_RX uart_rx([&received_bytes](uint8_t b){ received_bytes.push_back(b); });
-    V21_RX v21_rx(tx_omega1, tx_omega0, [&uart_rx](const unsigned int *s, unsigned int n){ uart_rx.put_samples(s, n); });
-    V21_TX v21_tx(tx_omega1, tx_omega0);
-
     std::mt19937 gen {42};
     std::uniform_int_distribution<> d_idle_samples {2*SAMPLES_PER_SYMBOL, 4*SAMPLES_PER_SYMBOL};
     std::uniform_int_distribution<> d_msg_bytes {1, 100};
@@ -111,6 +107,11 @@ static float compute_v21_ber_on_direction(bool tx_call, float EbN0_dB, bool add_
     constexpr int num_iterations = 10;
 
     for (int iteration = 0; iteration < num_iterations; iteration++) {
+        UART_TX uart_tx;
+        UART_RX uart_rx([&received_bytes](uint8_t b){ received_bytes.push_back(b); });
+        V21_RX v21_rx(tx_omega1, tx_omega0, [&uart_rx](const unsigned int *s, unsigned int n){ uart_rx.put_samples(s, n); });
+        V21_TX v21_tx(tx_omega1, tx_omega0);
+
         const int idle_samples = d_idle_samples(gen);
         constexpr int idle_end = 2*SAMPLES_PER_SYMBOL;
         const int msg_bytes = d_msg_bytes(gen);
@@ -157,8 +158,10 @@ static float compute_v21_ber_on_direction(bool tx_call, float EbN0_dB, bool add_
         }
 
         const float ber = ((float)bit_errors)/(8.*max_size);
+        std::cout << "ber: " << ber << std::endl;
         mean_ber += ber / num_iterations;
     }
+    std::cout << "mean_ber: " << mean_ber << std::endl;
 
     return mean_ber;
 }
@@ -171,5 +174,6 @@ static float compute_v21_ber(float EbN0_dB, bool add_timing_offset)
 
 TEST(v21, trivial)
 {
-    ASSERT_LE(compute_v21_ber(24, false), 1e-5);
+    //ASSERT_LE(compute_v21_ber(15, false), 1e-2);
+    ASSERT_LE(compute_v21_ber(16, true), 1e-5);
 }
