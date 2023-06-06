@@ -170,18 +170,27 @@ static float compute_v21_ber(float EbN0_dB, bool add_timing_offset)
             compute_v21_ber_on_direction(false, EbN0_dB, add_timing_offset))*.5;
 }
 
+static void test_v21(bool add_timing_offset)
+{
+    constexpr int max_EbN0_dB = 20;
+    float ber_EbN0_dB[max_EbN0_dB];
+    for (int EbN0_dB = 0; EbN0_dB < max_EbN0_dB; EbN0_dB++) {
+        const float ber = compute_v21_ber(EbN0_dB, add_timing_offset);
+        std::cout << "EbN0 = " << EbN0_dB << " dB, BER = " << ber << std::endl;
+        ber_EbN0_dB[EbN0_dB] = ber;
+    }
+    ASSERT_LE(ber_EbN0_dB[11], 1e-1);
+    ASSERT_LE(ber_EbN0_dB[14], 1e-2);
+    ASSERT_LE(ber_EbN0_dB[16], 1e-3);
+    ASSERT_LE(ber_EbN0_dB[19], 1e-5);
+}
+
 TEST(v21, sync)
 {
-    for (int EbN0_dB = 0; EbN0_dB < 20; EbN0_dB++) {
-        const float ber = compute_v21_ber(EbN0_dB, false);
-        std::cout << "EbN0 = " << EbN0_dB << " dB, BER = " << ber << std::endl;
-    }
+    test_v21(false);
 }
 
 TEST(v21, unsync)
 {
-    for (int EbN0_dB = 0; EbN0_dB < 20; EbN0_dB++) {
-        const float ber = compute_v21_ber(EbN0_dB, true);
-        std::cout << "EbN0 = " << EbN0_dB << " dB, BER = " << ber << std::endl;
-    }
+    test_v21(true);
 }
