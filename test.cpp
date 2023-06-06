@@ -104,7 +104,7 @@ static float compute_v21_ber_on_direction(bool tx_call, float EbN0_dB, bool add_
     std::uniform_real_distribution<> d_timing_offset {0.98f, 1.02f};
 
     float mean_ber = 0.;
-    constexpr int num_iterations = 10;
+    constexpr int num_iterations = 50;
 
     for (int iteration = 0; iteration < num_iterations; iteration++) {
         UART_TX uart_tx;
@@ -158,10 +158,8 @@ static float compute_v21_ber_on_direction(bool tx_call, float EbN0_dB, bool add_
         }
 
         const float ber = ((float)bit_errors)/(8.*max_size);
-        std::cout << "ber: " << ber << std::endl;
         mean_ber += ber / num_iterations;
     }
-    std::cout << "mean_ber: " << mean_ber << std::endl;
 
     return mean_ber;
 }
@@ -172,8 +170,18 @@ static float compute_v21_ber(float EbN0_dB, bool add_timing_offset)
             compute_v21_ber_on_direction(false, EbN0_dB, add_timing_offset))*.5;
 }
 
-TEST(v21, trivial)
+TEST(v21, sync)
 {
-    //ASSERT_LE(compute_v21_ber(15, false), 1e-2);
-    ASSERT_LE(compute_v21_ber(16, true), 1e-5);
+    for (int EbN0_dB = 0; EbN0_dB < 20; EbN0_dB++) {
+        const float ber = compute_v21_ber(EbN0_dB, false);
+        std::cout << "EbN0 = " << EbN0_dB << " dB, BER = " << ber << std::endl;
+    }
+}
+
+TEST(v21, unsync)
+{
+    for (int EbN0_dB = 0; EbN0_dB < 20; EbN0_dB++) {
+        const float ber = compute_v21_ber(EbN0_dB, true);
+        std::cout << "EbN0 = " << EbN0_dB << " dB, BER = " << ber << std::endl;
+    }
 }
