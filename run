@@ -1,0 +1,15 @@
+#!/bin/bash
+if [[ -n "$GITHUB_TOKEN" || -n "$BUILD_MINGW" ]]; then
+    set -xe
+    mkdir build-win
+    cd build-win
+    PKG_CONFIG_LIBDIR=/mingw-install/lib/pkgconfig cmake -DCMAKE_TOOLCHAIN_FILE=/mingw-install/TC-mingw.cmake ..
+    make
+    cd ..
+fi
+
+set -xe
+mkdir build
+cd build
+cmake -DGRADER=ON ..
+make
