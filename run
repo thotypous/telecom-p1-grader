@@ -17,4 +17,4 @@ cd build
 cmake -DGRADER=ON ..
 make
 cp Modem ../artifacts
-python grade.py
+python ../grader/grade.py
