@@ -15,6 +15,7 @@ def plot_ebn0_ber(filename, inf):
         if m:
             ebn0.append(float(m.group(1)))
             ber.append(float(m.group(2)))
+    plt.clf()
     plt.plot(ebn0, ber, 'ko-')
     plt.yscale('log')
     plt.ylim([1e-5, 1])
