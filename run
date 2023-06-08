@@ -3,7 +3,7 @@ mkdir -p artifacts
 
 if [[ -n "$GITHUB_TOKEN" || -n "$BUILD_MINGW" ]]; then
     set -xe
-    mkdir build-win
+    mkdir -p build-win
     cd build-win
     PKG_CONFIG_LIBDIR=/mingw-install/lib/pkgconfig cmake -DCMAKE_TOOLCHAIN_FILE=/mingw-install/TC-mingw.cmake ..
     make
@@ -12,7 +12,7 @@ if [[ -n "$GITHUB_TOKEN" || -n "$BUILD_MINGW" ]]; then
 fi
 
 set -xe
-mkdir build
+mkdir -p build
 cd build
 cmake -DGRADER=ON ..
 make
