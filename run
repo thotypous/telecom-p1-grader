@@ -18,6 +18,7 @@ cmake -DGRADER=ON ..
 make
 cp Modem ../artifacts
 
+set +x
 python ../grader/grade.py
 
 if [[ -n "$GITHUB_TOKEN" ]]; then
