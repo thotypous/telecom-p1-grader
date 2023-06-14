@@ -179,8 +179,8 @@ static void test_v21(bool add_timing_offset)
         std::cout << "EbN0 = " << EbN0_dB << " dB, BER = " << ber << std::endl;
         ber_EbN0_dB[EbN0_dB] = ber;
     }
-    ASSERT_LE(ber_EbN0_dB[11], 1e-1);
-    ASSERT_LE(ber_EbN0_dB[14], 1e-2);
+    ASSERT_LE(ber_EbN0_dB[10], 1e-1);
+    ASSERT_LE(ber_EbN0_dB[12], 1e-2);
     ASSERT_LE(ber_EbN0_dB[16], 1e-3);
     ASSERT_LE(ber_EbN0_dB[19], 1e-5);
 }
