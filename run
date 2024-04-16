@@ -19,7 +19,7 @@ make
 cp Modem ../artifacts
 
 set +x
-python ../grader/grade.py
+python3 ../grader/grade.py
 
 if [[ -n "$GITHUB_TOKEN" ]]; then
     curl --fail-with-body -sL \
